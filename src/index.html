@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ISO Maker</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<div class="app">
+  <!-- 左侧面板：拖拽区 + 统计栏 -->
+  <div class="panel-left">
+    <div class="drop-zone" id="pickZone">
+      <div class="drop-content">
+        <div class="icon">📂</div>
+        <div class="text">拖拽文件到此处，或点击下方按钮选择</div>
+        <div class="hint">支持拖放文件、文件夹，或同时选择多个文件</div>
+        <div class="drop-actions">
+          <button class="btn-pick" id="btnPickFiles">📄 选择文件</button>
+          <button class="btn-pick" id="btnPickFolder">📁 选择文件夹</button>
+        </div>
+      </div>
+    </div>
+    <div class="stats-bar" id="statsBar">
+      <span class="stats-info" id="statsInfo">📭 还没有添加文件</span>
+      <button class="btn-text" id="btnClear">清空</button>
+    </div>
+  </div>
+
+  <!-- 右侧面板：配置 + 操作 + 进度/结果 -->
+  <div class="panel-right">
+    <div class="config-card">
+      <div class="config-group">
+        <label class="config-label">💿 卷标名称</label>
+        <input class="input-field" id="volumeLabel" value="CDROM" maxlength="32">
+      </div>
+      <div class="config-group">
+        <label class="config-label">📝 输出文件名</label>
+        <input class="input-field" id="outputFilename" value="CDROM.iso" readonly>
+      </div>
+      <div class="est-size">预估大小: <span class="val" id="estSize">—</span></div>
+      <button class="btn-create" id="btnCreate" disabled>🔥 制作 ISO</button>
+    </div>
+
+    <!-- 进度 -->
+    <div class="progress-box" id="progressBox">
+      <div class="progress-top">
+        <span class="label" id="progLabel">正在制作...</span>
+        <span class="pct" id="progPct">0%</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill" id="progFill"></div></div>
+      <div class="progress-status" id="progStatus">准备中...</div>
+    </div>
+
+    <!-- 结果 -->
+    <div class="result-box" id="resultBox">
+      <div class="rh">✅ ISO 制作完成</div>
+      <div class="ri" id="resultInfo"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-box" id="toastBox"></div>
+
+<script type="module" src="/main.js"></script>
+</body>
+</html>
