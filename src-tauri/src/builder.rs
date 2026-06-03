@@ -177,7 +177,6 @@ fn print_file_tree(files: &[File], depth: usize) {
 
 fn sanitize_volume_label(label: &str) -> String {
     let s: String = label
-        .to_uppercase()
         .chars()
         .filter(|c| c.is_ascii_alphanumeric() || *c == ' ' || *c == '_')
         .take(32)
