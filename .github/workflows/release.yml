@@ -6,6 +6,10 @@ on:
     tags:
       - 'v*'
 
+# 确保有权限创建 Release
+permissions:
+  contents: write
+
 jobs:
   publish:
     strategy:
@@ -53,3 +57,5 @@ jobs:
           releaseBody: '请查看下方 Assets 下载对应平台的安装包。'
           releaseDraft: false
           prerelease: false
+          # 本项目前端是静态文件，无需 npm run build
+          beforeBuildCommand: ''
