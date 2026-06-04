@@ -1,8 +1,8 @@
 use crate::state::FileEntry;
-use hadris_iso::read::PathSeparator;
+use hadris_iso::joliet::JolietLevel;use hadris_iso::read::PathSeparator;
 use hadris_iso::write::options::{CreationFeatures, FormatOptions};
 use hadris_iso::write::{File, InputFiles, IsoImageWriter};
-use std::collections::BTreeMap;
+use hadris_iso::rrip::RripOptions;use std::collections::BTreeMap;
 use std::path::Path;
 use std::sync::Arc;
 
@@ -87,11 +87,11 @@ pub fn build_iso(
         features: CreationFeatures {
             filenames: hadris_iso::write::options::BaseIsoLevel::Level2 {
                 supports_lowercase: true,
-                supports_rrip: false,
+                supports_rrip: true,
             },
             long_filenames: true,
-            joliet: None,
-            rock_ridge: None,
+            joliet: Some(JolietLevel::Level3),
+            rock_ridge: Some(RripOptions::default()),
             el_torito: None,
             hybrid_boot: None,
         },

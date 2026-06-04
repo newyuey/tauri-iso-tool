@@ -12,19 +12,18 @@
   <!-- 左侧面板：拖拽区 + 统计栏 -->
   <div class="panel-left">
     <div class="drop-zone" id="pickZone">
-      <div class="drop-content">
+      <div class="drop-content" id="dropPlaceholder">
         <div class="icon">📂</div>
-        <div class="text">拖拽文件到此处，或点击下方按钮选择</div>
-        <div class="hint">支持拖放文件、文件夹，或同时选择多个文件</div>
-        <div class="drop-actions">
-          <button class="btn-pick" id="btnPickFiles">📄 选择文件</button>
-          <button class="btn-pick" id="btnPickFolder">📁 选择文件夹</button>
-        </div>
+        <div class="text">点击下方按钮选择文件或文件夹</div>
+      </div>
+      <div class="file-tree" id="fileTree" style="display:none"></div>
+      <div class="drop-actions">
+        <button class="btn-pick" id="btnPickFiles">📄 选择文件</button>
+        <button class="btn-pick" id="btnPickFolder">📁 选择文件夹</button>
       </div>
     </div>
     <div class="stats-bar" id="statsBar">
       <span class="stats-info" id="statsInfo">📭 还没有添加文件</span>
-      <button class="btn-text" id="btnClear">清空</button>
     </div>
   </div>
 

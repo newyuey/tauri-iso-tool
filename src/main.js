@@ -13,7 +13,6 @@ const el = {
   btnPickFiles:  $('#btnPickFiles'),
   btnPickFolder: $('#btnPickFolder'),
   statsInfo:  $('#statsInfo'),
-  btnClear:   $('#btnClear'),
   volumeLabel:    $('#volumeLabel'),
   outputFilename: $('#outputFilename'),
   estSize:    $('#estSize'),
@@ -26,13 +25,14 @@ const el = {
   resultBox:  $('#resultBox'),
   resultInfo: $('#resultInfo'),
   toastBox: $('#toastBox'),
+  dropPlaceholder: $('#dropPlaceholder'),
+  fileTree: $('#fileTree'),
 };
 
 // ── 初始化 ────────────────────────────────────────────
 async function init() {
   el.btnPickFiles.onclick  = () => pickAndAdd(false);
   el.btnPickFolder.onclick = () => pickAndAdd(true);
-  el.btnClear.onclick = clearAll;
   el.btnCreate.onclick = buildIso;
 
   el.volumeLabel.oninput = () => {
@@ -57,35 +57,6 @@ async function init() {
     }
   });
 
-  // ── 拖拽支持（Tauri 原生拖拽事件）─────────────────────
-  const dropZone = document.getElementById('pickZone');
-
-  await listen('tauri://drag-enter', () => {
-    dropZone.classList.add('drag-over');
-  });
-
-  await listen('tauri://drag-leave', () => {
-    dropZone.classList.remove('drag-over');
-  });
-
-  await listen('tauri://drag-drop', async (event) => {
-    dropZone.classList.remove('drag-over');
-    const paths = event.payload?.paths;
-    if (!paths || !paths.length) return;
-
-    try {
-      toast('正在读取文件...', 'info');
-      const added = await invoke('add_files', { paths });
-      added.forEach((f) => {
-        state.files.push({ ...f, id: uid() });
-      });
-      render();
-      toast(`已添加 ${added.length} 个文件`, 'success');
-    } catch (e) {
-      toast('添加失败: ' + e, 'error');
-    }
-  });
-
   render();
 }
 
@@ -99,6 +70,8 @@ async function pickAndAdd(folder) {
     if (!paths || !paths.length) return;
 
     toast('正在读取文件...', 'info');
+    state.files = [];
+    await invoke('clear_files');
     const added = await invoke('add_files', { paths });
     added.forEach((f) => {
       state.files.push({ ...f, id: uid() });
@@ -142,16 +115,6 @@ async function buildIso() {
   }
 }
 
-// ── 清空 ──────────────────────────────────────────────
-function clearAll() {
-  if (!state.files.length) return;
-  state.files = [];
-  invoke('clear_files');
-  render();
-  toast('已清空', 'info');
-}
-
-// ── 渲染 ──────────────────────────────────────────────
 function render() {
   const n = state.files.length;
 
@@ -159,6 +122,9 @@ function render() {
     el.statsInfo.innerHTML = '📭 还没有添加文件';
     el.btnCreate.disabled = true;
     el.estSize.textContent = '—';
+    el.dropPlaceholder.style.display = '';
+    el.fileTree.style.display = 'none';
+    el.fileTree.innerHTML = '';
     return;
   }
 
@@ -166,6 +132,10 @@ function render() {
 
   const total = state.files.reduce((s, f) => s + (f.size || 0), 0);
   el.statsInfo.innerHTML = `📊 <strong>${n}</strong> 个文件 · <strong>${fmtSize(total)}</strong>`;
+
+  el.dropPlaceholder.style.display = 'none';
+  el.fileTree.style.display = '';
+  renderFileTree(state.files);
 
   invoke('estimate_iso_size', { files: state.files.map(f => ({ name: f.name, path: f.path, iso_path: f.isoPath || f.iso_path, size: f.size })) })
     .then(sz => { el.estSize.textContent = fmtSize(sz); })
@@ -212,6 +182,27 @@ function esc(s) {
   const d = document.createElement('div');
   d.textContent = s || '';
   return d.innerHTML;
+}
+
+
+// ── 文件树渲染 ───────────────────────────────────────
+function renderFileTree(files) {
+  const tree = {};
+  for (const f of files) {
+    const ip = (f.isoPath || f.iso_path || '');
+    const dir = ip.substring(0, ip.lastIndexOf('/') + 1) || '/';
+    if (!tree[dir]) tree[dir] = [];
+    tree[dir].push(f);
+  }
+  const dirs = Object.keys(tree).sort();
+  let html = '';
+  for (const dir of dirs) {
+    html += `<div class="ft-dir"><span class="ft-dir-icon">📁</span>${esc(dir === '/' ? '/' : dir)}</div>`;
+    for (const f of tree[dir]) {
+      html += `<div class="ft-file"><span class="ft-file-name">${esc(f.name)}</span><span class="ft-file-size">${fmtSize(f.size)}</span></div>`;
+    }
+  }
+  el.fileTree.innerHTML = html;
 }
 
 document.addEventListener('DOMContentLoaded', init);
